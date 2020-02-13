@@ -1,0 +1,322 @@
+   34  kubectl get nodes
+   35  clear
+   36  kubectl get nodes
+   37  vi pod.yaml
+=====================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: home-pod
+spec:
+  containers:
+  - name: sise
+    image: mhausenblas/simpleservice:0.5.0
+    ports:
+    - containerPort: 9876
+  - name: shell
+    image: centos:7
+    command:
+      - "bin/bash"
+      - "-c"
+      - "sleep 10000"
+=====================
+   38  kubeadm version
+   40  kubectl create -f pod.yaml
+   41  kubectl get pods
+   42  kubectl describe pod home-pod
+   43  kubectl get pods --output=wide
+   44  clear
+   46  kubectl get ns
+   47  kubectl describe pod home-pod
+   48  clear
+   49  kubectl get ns
+   50  kubectl create ns keertha
+   51  kubectl get ns
+   52  vi ns.yaml
+------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gaya
+-------------------------
+   53  kubectl craete -f ns.yaml
+   54  kubectl create -f ns.yaml
+   55  kubectl get ns
+   56  clear
+   57  vi ns1.yaml
+----------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ns-testing
+spec:
+  containers:
+  - name: sise
+    image: mhausenblas/simpleservice:0.5.0
+    ports:
+    - containerPort: 9876
+-----------------------------------------
+   58  kubectl create --namespace=gaya -f ns1.yaml
+   59  kubectl get pods
+   60  kubectl get pods --namespace=gaya
+   61  kubectl describe pod ns-testing
+   62  kubectl describe pod ns-testing--namespace=gaya
+   63  kubectl describe pod ns-testing --namespace=gaya
+   64  history
+   65  clear
+   66  kubectl get ns
+   67  kubectl delete ns keertha
+   68  kubectl get ns
+   69  clear
+   70  vi label.yaml
+----------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: label-example
+  labels:
+    env: development
+spec:
+  containers:
+  - name: sise
+    image: mhausenblas/simpleservice:0.5.0
+    ports:
+    - containerPort: 9876
+-------------------------------------------
+
+   71  kubectl create -f label.yaml
+   72  kubectl get pods
+   73  kubectl get pods --show-labels
+   74  kubectl get pods -l env=development
+   75  kubectl get pods --label env=development
+   76  kubectl get pods --labels env=development
+   77  kubectl label pods label-example owner=keethana
+   78  kubectl get pods --show-labels
+   79  kubectl get pods --selector owner=keethana
+   80  clear
+   81  kubectl get nodes
+   82  vi node.yaml
+-----------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: select-node
+spec:
+  containers:
+  - name: sise
+    image: mhausenblas/simpleservice:0.5.0
+    ports:
+    - containerPort: 9876
+  nodeSelector:
+    shouldrun: here
+--------------------------------------------
+
+   83  kubectl label nodes kubernetes-worker2 shouldrun=here
+   84  kubectl create -f node.yaml
+   85  kubectl get pods
+   86  kubectl get pods --output=wide
+   87  clear
+   88  vi job.yaml
+-----------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: countdown
+spec:
+  template:
+    metadata:
+      name: countdown
+    spec:
+      containers:
+      - name: counter
+        image: centos:7
+        command:
+         - "bin/bash"
+         - "-c"
+         - "for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done"
+      restartPolicy: Never
+------------------------------------------------
+   89  for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done
+   90  kubectl create -f job.yaml
+   91  kubectl get pods --output=wide
+   92  kubectl logs countdown-f2pqj
+   94  history
+   95  clear
+   96  kuberctl get nodes
+   97  kubectl get nodes
+   98  clear
+   99  vi rc.yaml
+--------------------------------
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: rc-test
+spec:
+  replicas: 3
+  selector:
+    app: sise
+  template:
+    metadata:
+      name: somename
+      labels:
+        app: sise
+    spec:
+      containers:
+      - name: sise
+        image: mhausenblas/simpleservice:0.5.0
+        ports:
+        - containerPort: 9876
+-----------------------------------------------
+  100  kubectl create -f rc.yaml
+  101  kubectl get pods
+  102  kubectl get rc
+  103  kubectl delete pod rcex-gq59f
+  104  kubectl get rc
+  105  kubectl get pods
+  106  vi rc.yaml
+  107  kubectl create -f rc.yaml
+  108  kubectl get rc
+  109  kubectl get pods
+  110  kubectl delete pod rc-test-cwst8 rc-test-gg2vs rc-test-nzdxm
+  111  kubectl get pods
+  112  history
+  113  kubectl scale --replicas=2 rc/rcex
+  114  kubectl get rc
+  115  kubectl scale --replicas=1 rc/rcex
+  116  kubectl get rc
+  117  clear
+  118  vi deployment.yaml
+------------------------------
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: sise-deploy
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: sise
+    spec:
+      containers:
+      - name: sise
+        image: mhausenblas/simpleservice:0.5.0
+        ports:
+        - containerPort: 9876
+        env:
+        - name: SIMPLE_SERVICE_VERSION
+          value: "0.9"
+---------------------------------------------
+
+  119  kubectl create -f deployment.yaml
+  120  kubectl convert -f deployment.yaml --output-version apps/v1
+  121  vi deploy.yaml
+----------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: sise
+  name: sise-deploy
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: sise
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: sise
+    spec:
+      containers:
+      - env:
+        - name: SIMPLE_SERVICE_VERSION
+          value: "1.0"
+        image: mhausenblas/simpleservice:0.5.0
+        imagePullPolicy: IfNotPresent
+        name: sise
+        ports:
+        - containerPort: 9876
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
+----------------------------------------------
+  122  kubectl create -f deploy.yaml
+  123  kubectl get pods
+  124  kubectl get deploy
+  125  kubectl get rs
+  126  kubectl get pods
+  127  kubectl get pods --output=wide
+  128  clear
+  129  vi deploy1.yaml
+---------------------------
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: sise-deploy
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: sise
+    spec:
+      containers:
+      - name: sise
+        image: mhausenblas/simpleservice:0.5.0
+        ports:
+        - containerPort: 9876
+        env:
+        - name: SIMPLE_SERVICE_VERSION
+          value: "1.0"
+------------------------------------
+
+  
+  136  kubectl get pods
+  137  kubectl create -f deploy.yaml
+  138  kubectl edit deploy/sise-deploy
+  139  kubectl get pods
+  140  kubectl get pods --output=wide
+  141  kubectl rollout history deploy/sise-deploy
+  142  kubectl rollout undo deploy/sise-deploy --to-revision=1
+  143  kubectl get pods
+  144  kubectl get pods
+  145  kubectl get pods --output=wide
+  146  clear
+  147  history
+  148  clear
+  149  echo -n "A19fh68B001j" > ./apikey.txt
+  150  ls
+  151  ls -al
+  152  clear
+  153  cat apikey.txt
+  154  kubectl create secret generic apikey --from-file=./apikey.txt
+  155  kubectl describe secrets/apikey
+  156  kubectl get secrets
+  157  vi apiVersion: v1
+  158  vi secre.yaml
+  159  kubectl create -f secre.yaml
+  160  kubectl get pods
+  161  kubectl exec consumesec -c shell -i -t -- bash
+=======================================================================
+Node History
+curl 10.0.1.13:9786/info
+curl 10.0.1.13:9876/info
+curl 10.0.1.14:9876/info
+

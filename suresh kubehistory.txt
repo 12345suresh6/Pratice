@@ -1,0 +1,183 @@
+  170  kubectl get nodes
+  172  vi pods1.yaml
+       
+  173  kubectl create -f pods1.yaml
+  174  vi pods1.yaml
+  175  kubectl create -f pods1.yaml
+  176  clear
+  177  kubectl get pods
+  178  kubectl get pods output=wide
+  179  kubectl get pod nginx-pod
+  180  kubectl describe pod nginx-pod
+  181  clear
+  182  kubectl ns
+  183  kubectl get ns
+  184  kubectl create ns suresh
+  185  kubectl get ns
+  186  cat ns1.yaml
+  187  clear
+  188  vi ns2.yaml
+  189  kubectl create --namespace=suresh -f ns2.yaml
+  190  cat ns2.yaml
+  191  clear
+  192  kubectl get pods
+  193  kubectl get pods --namespace=suresh
+  194  kubectl describe  pod --namespace=suresh
+  195  clear
+  196  kubectl describe  pod --namespace=suresh
+  197  kubectl get  pod --namespace=suresh
+  198  kubectl get  pod  ns-testing --namespace=suresh
+  199  kubectl describe pod  ns-testing --namespace=suresh
+  200  clear
+  201  kubectl get pod --output=wide --namespace=suresh
+  202  ls
+  203  sudo -i
+  204  sudo -i
+  205  cat label.yaml
+  206  clear
+  207  vi labels2.yaml
+  208  kubectl create -f labels2.yaml
+  209  kubectl get pods
+  210  kubectl get pods --show-labels
+  211  kubectl get pods -l env=development
+  212  kubectl get pods -lables env=development
+  213  cat labels2.yaml
+  214  clear
+  215  kubectl get pods -lables env=development
+  216  kubectl label pods label-examples2 owner=suresh
+  217  kubectl label pods label-example owner=keethana
+  218  kubectl get pods --show-labels
+  219  kubectl get pods --selector owner=suresh
+  220  kubectl get nodes
+  221  kubectl get pods --namespace=suresh
+  222  kubectl get pods --show-labels
+  223  kubectl get pods --show-labels owner=suresh
+  224  kubectl get pods --selector owner=suresh
+  225  kubectl describe label-examples2  --selector owner=suresh
+  226  kubectl describe pod label-examples2  --selector owner=suresh
+  227  kubectl describe label-examples2
+  228  kubectl describe pod label-examples2
+  229  kubectl get  pod label-examples2 --output=wide
+  230  clear
+  231  cat labels2.yaml
+  232  clear
+  233  cat node.yaml
+  234  vi nodes2.yaml
+  235  kubectl get nodes
+  236  kubectl label nodes kubernetes-worker1 shouldrun=here
+  237  kubectl get pods
+  238  vi nodes2.yaml
+  239  kubectl label nodes2 kubernetes-worker1 shouldrun=here
+  240  kubectl label nodes kubernetes-worker1 shouldrun=here
+  241  kubectl create -f nodes.yaml
+  242*
+  243  kubectl get pods
+  244  kubectl get pods --output=wide
+  245  clear
+  246  kubectl label nodes kubernetes-worker2 shouldrun=here
+  247  vi nodes2.yaml
+  248  kubectl label nodes kubernetes-worker1 shouldrun=here
+  249  kubectl get pods
+  250  kubectl get pods --output=wide
+  251  clear
+  252  cat job.yaml
+  253  vi jobs.yaml
+  254  kubectl get pods --output=wide
+  255  kubectl create -f jobs.yaml
+  256  kubectl get pods --output=wide
+  257  kubectl logs countdown2-q22t2
+  258  clear
+  259  cat rc.yaml
+  260  vi rcs2.yaml
+  261  kubectl create -f  rcs2.yaml
+  262  kubectl get pods --output=wide
+  263  vi rcs2.yaml
+  264  kubectl create -f  rcs2.yaml
+  265  kubectl get pods --output=wide
+  266  kubectl delete pods rc-test-s2-b5ngp rc-test-s2-jtfbt
+  267  kubectl get pods --output=wide
+  268  kubectl scale --replicas=1 rc-test-s2
+  269  kubectl scale --replicas=1 rc-test
+  270  kubectl scale --replicas=1 rc/rcex
+  271  kubectl get pods --output=wide
+  272  kubectl scale --replicas=5 rc/rcex
+  273  kubectl get pods --output=wide
+  274*
+  275  kubectl scale --replicas=2 rc/rcex
+  276  kubectl get pods --output=wide
+  277  kubectl delete pods rc-test-s2-6cgmk rc-test-s2-gxdxb
+  278  kubectl get rc
+  279  kubectl scale --replicas=1 rc/rc-test-s2
+  280  kubectl get pods --output=wide
+  281  kubectl get rc
+  282  kubectl scale --replicas=5 rc/rc-test-s2
+  283  kubectl get rc
+  284  kubectl scale --replicas=1 rc/rc-test-s2
+  285  kubectl get pods --output=wide
+  286  kubectl delete pods rc-test-s2-2zcn2 rc-test-s2-79w7v rc-test-s2-g7v4v rc-test-s2-l8t8x rc-test-s2-m7skr rc-test-s2-zx4xq
+  287  kubectl get pods --output=wide
+  288  kubectl scale --replicas=1 rc/rcex
+  289  kubectl get pods --output=wide
+  290  clear
+  291  kubectl get pods --output=wide
+  292  vi deployment.yaml
+  293  vi deployment-s2.yaml
+  294  kubectl create -f deployment-s2.yaml
+  295*
+  296  vi deployment-s2.yaml
+  297  kubectl create -f deployment-s2.yaml
+  298  vi deployment-s2.yaml
+  299  kubectl create -f deployment-s2.yaml
+  300  kubectl convert -f deployment-s2.yaml --output-version apps/v1
+  301  vi deployment.yaml
+  302  cat deploy1.yaml
+  303  vi deployment-s2.yaml
+  304  clear
+  305  vi deployment-s2.yaml
+  306  kubectl create -f deployment-s2.yaml --namespace=suresh
+  307  kubectl convert -f deployment-s2.yaml --output-version apps/v1
+  308  vi deploys2.yaml
+  309  kubectl create -f deploys2.yaml --namespace=suresh
+  310  kubectl get pods --namespace=suresh
+  311  kubectl get pods --namespace=suresh --output=wide
+  312  clesr
+  313  clear
+  314   kubectl rollout history deploy/sise-deploys2
+  315   kubectl rollout history deploy/sise-deploy
+  316  kubectl edit deploys2/sise-deploys2
+  317  kubectl edit deploy/sise-deploys2
+  318  cat deploy.yaml
+  319  kubectl edit deploys2/sise-deploy
+  320  kubectl edit deploy/sise-deploy
+  321  kubectl get pods --namespace=suresh
+  322  kubectl get pods --namespace=suresh --outputwide
+  323  kubectl get pods --namespace=suresh --output=wide
+  324   kubectl rollout history deploy/sise-deploy
+  325  clear
+  326  kubectl rollout undo deploy/sise-deploy --to-revision=1
+  327  clear
+  328   kubectl rollout history deploy/sise-deploy
+  329  kubectl rollout undo deploy/sise-deploy --to-revision=3
+  330  kubectl get pods --namespace=suresh --output=wide
+  331  echo -n "A19fh68B001j" > ./apikey.txt
+  332  echo -n "A19fh68B002p" > ./apikey2.txt
+  333  ls -la
+  334  cat apikey2.txt
+  335  clear
+  336  ls
+  337  kubectl create secret generic apikey --from-file=./apikey2.txt
+  338  ls -la
+  339  kubectl create secret generic apikey --from-file=./apikey2.txt
+  340  kubectl create secret generic apikey2 --from-file=./apikey2.txt
+  341  kubectl describe secret/apikey2 created
+  342  kubectl describe secret/apikey2
+  343  kubectl get secrets
+  344  cat apikey2
+  345  clear
+  346  cat apiVersion: v1
+  347  cat secre.yaml
+  348  vi secret2.yaml
+  349   kubectl create -f secret2.yaml
+  350  kubectl get pods
+  351  kubectl exec key -c shell -i -t -- bash
+  352  ls
