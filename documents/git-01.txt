@@ -1,0 +1,275 @@
+What is git?
+why git?
+how we use git?
+=>Git is Version Control System(VCS) tool
+They are Two Types Of Version Control systems are available.
+1)scm(source code management)
+2)vcs(Version Control System)
+Website
+--------
+index.html---------->01-01-2020
+   About Home contact us. (save as v1)
+index.html---------->01-02-2020
+   About Home contact us and login. (save as v2).
+Aftersome days:
+---------------
+index.html---------->01-03-2020
+   About Home contact us
+(modified)and login signup. (save as v3)
+
+=>VCS tools
+svn/p4/clear case/git/bitkeeper
+free(svn/git)
+paid(stash/p4/clearcase/gitkeeper)
+=>Why vcs?
+To track different versions of a file or directory
+=>who use this
+all programmers ,developers,system admins,devops Engineers etc..
+=>which files we use vcs?
+all text based files like .java.html,.php,.c,etc
+
+History:
+-----------
+1972:
+vcs started in 1972
+sccm(to track only one file)
+rcs(track multiple files but not track directories
+     and allow only one user only)
+cvs(track multiple files and directories
+     and allow only one user only).
+2000:
+svn(track multiple files and directories
+     and allow multiple users).
+2005
+git(invited by linux torvalds and used to track multiple files and directories
+     and allow multiple users) 
+  
+Difference between git and svn
+------------------------------------
+svn                                      Git
+server client based----------------->every project is independent
+you always need net connection------->no need to continuous net connection
+eat more disk space more burdain----->less disk space and less burden
+centralized version control --------->distibuted version control
+Back up take on server-------------->Back up taken by any client
+-----------------------
+=>What platform it supports?
+windows,linux,solaris,mac
+=>how to install git
+yum install git (in linux)
+git download(in windows)
+=======================================================================================
+2)How to work with git?
+mkdir <project dir>
+cd <project dir>
+git init -->it will initialize git and create empty stucture under git folder
+
+3 phases in git
+---------------
+1)working_dir
+2)stage/cache
+3)local_repo
+
+=>How to configure your git work correctly?
+3 Types of configuration:
+1)system
+  /etc/gitconfig(git config --system)
+2)User
+  ~/.gitconfig (or) /home/ramu/.gitconfig 
+3)Project level
+   .git/config
+    git config
+==>user level configuration
+= user config --global user.name "suresh"
+= user config --global user.email "suresh@gmail.com"
+= user config --global core.editor "vim"
+= user config --global color.ui tree
+To see the config list
+-------
+git config --list
+-------------------------------------------------------
+-->git status:
+it will show the files tracked in different stages.
+Red coloar:The files are not added to staging area.
+-->git add .(It will add all local files into staging area).
+green color:This color will tell us the files are in staging area
+--> git commit -m "Sutable name we have to give"
+It will tansfer all staging area files in to local git repositories.
+----
+=>How can  i see commit messages?
+git log command will show the all commited messages
+(it will give commid id ,who is user of commit and when it has created)
+
+=>What is Sha1 number?
+ It is a random and unique 40 characters hexa decimal value(0-9,a-f).
+=>How can We see the content of a commit
+  git show <Commit id> 
+
+=>How can we see difference between 2 commits
+git diff <commitid>..<commitid>
+
+eample:
+------
+1212d222r            6666d666s              66ssd255s25
+index.html ------->index.html+f1+f2+f3----->index.html+f1(modified)+f2+f3
+  (Difference is f1+f2+f3 files)       (Differecnce is f1 content)
+
+-----------------
+git init
+git config --global
+git add <filename> (or)git add .
+git commit -m "commit message"
+git status
+git log
+git log --onelinr
+git log --since=2020-01-10
+git log --until=2020-02-01
+git log --author="suresh"
+git log --grep="Pattern name"
+git log --oneline --author="ramu" --grep="f1"
+======================================================================
+3)what is Branches?
+ It is series of commits along with the files/directories
+
+master                       feature1                 feature2
+index.html+extra------->index.html+extra+additional---> +.java+.php
+master---->feature1
+
+=>what is command it will show use with branch?
+git branch
+ It shows all the current branches in alphabatical orders.
+* master(here is * represents your currently in that branch)
+
+=>how to create a branch?
+  git branch <new branchname>
+  git branch feature
+
+=>how to jump to other branch?
+  git checkout feature
+=>create and checkout branch in one file?
+git checkout -b <new branchname> 
+git checkout -b extra
+
+=>how can we see difference branch in one line?
+ex: git diff master..feature
+master                            feauture
+(index.html+f1+f2+f3+f4)-------->(index.html+f1+f2+f3+f4+login+signup)
+
+
+=>what is merging?
+Mixing of 2 branches is called merging.
+we need to have two branches for merging
+
+master(target)<---------- feature(source)
+git merge feature
+
+=>How to delete a branch?
+  git branch -d feature
+ex: git branch -d <branchname>
+    git branch -D feature.
+Note :Your not in the feature branch to delete the feature branch.
+
+--------
+git branch
+git branch <new brname>
+git checkout <br name>
+git checkout -b <new br name>
+git diff <br1 name>..<br2 name>
+git merge <br name>
+git branch -d <br name>
+========================================================================
+================================================================================
+4)git rm & git mv
+---------------
+=>How to add and commit a files/directories in a single step?
+  git commit -am "<commit name>"
+Note; its applicable for exiting files only.
+
+=>how to change commit message?
+git commit --amend -m "<commit messages>"
+
+=> how to get back deleted file?
+rm <file>
+git checkout <file>
+
+=>How to delete a file permenenatly?
+
+ git rm <file>
+ git mv <file> <remame file>
+========================================================
+5)gitignore:-
+------------
+To ignore the unneccery file in a project  
+
+system level
+-----------
+/etc/gitignore
+
+project level
+--------------
+vi .gitignore
+
+#ignore below files
+  *.jpg
+  *.png
+  *.php
+  *.class
+   !index.php
+(you can to add ignore files forefully also like 
+  git add -f 1.php).
+
+=>How to erase your history?
+   git reset --soft <sha1 number>
+   git reset --mixed <sha1 number>
+   git reset --hard <sha1 number>
+
+what is head?
+
+Head is a pointer which points to the top commit.
+
+=====================================================================
+6)Git stash:
+---------------
+
+=>what is stash
+  stash is a temporary area under git
+
+=>why stash?
+to store temporary files
+
+=>how to use stash?
+what are the conditions to store the files in to stash area?
+ =>files must and should in cache/staging area
+
+=>what are the commands use to store the data in the stash?
+
+  git stash save <"message">
+  stash@{0}: <branch name> <messages>
+
+=>what are the commands use to copy the data into branches?
+  git stash apply <stash#>---->copy paste
+  git stash pop <stash#>------->cut paste
+
+=>how to delete the stash area?
+  git stash drop <stash#>--->delete the particular
+  git stash clear ---------->delete the entire stash list
+===================================================================
+get conflit:
+----------------
+vi index.html(in master)
+<h1> hi suresh</h1>
+vi index.html(in feature)
+<h1> hi raju </h1>
+
+git merge feature (It will give error because one file name contain dihfferent
+                      content)
+=>how to check data in file?
+  git commit -a
+   vi index.hml(It will show difference content in one place).
+
+On that time we have to give different neme files in master and feature.
+===============================================================
+ 
+
+
+

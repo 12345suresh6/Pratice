@@ -1,0 +1,647 @@
+==>What is the chef?
+   Chef is Configure Management Tool
+=>What is Configure Management Tool?
+  it is maintain number(100 and 1000s) of mechines with automation.
+=>what configuration management maintain?
+ it maintain the system resources such as
+ 1)install a application
+ 2)configura a application
+ 3)update the applicaation
+ 4)maintain the appication  and so on--
+
+  =>configuration management tools?
+  puppet ----------->2005 --->pull
+  chef ------------->2008----->pull
+  Ansible------------->2011---->push         
+
+=>Infrastructor as a code
+----------------------------
+=>Chef ensure each node complies with policy
+=>policy determined by the configurations in each node's runlist
+=>reduce management complexity through abstraction
+=>your policy states what state each resource should run
+-----------------------------------------
+=>what is resource?
+   resource is a piece os system and its desired state
+
+file----->create ,delete
+user------>create,delete
+package----> install/not
+-----------------
+Manage Compliexity
+------
+1)Organization
+2)Environment
+3)Roles
+4)nodes
+5)recipes
+6)cookbooks
+7)runlist
+
+=======================
+
+1)Organization:
+---------------
+It is Independent tenaut
+eg: compaines,department
+
+2)Environment:
+   environment reflect your pattern and workflow ,and can be used to model 
+the life stages of your applications.
+   --->development env
+   --->testing env
+   ---->staging env
+  ----->production env
+
+3)Roles
+-------
+    Roles represent the type of servers in your infrastructure.
+    -->lb server(load balancer)
+    -->web servers
+    ---> dbservers
+4) Nodes:
+-----------
+
+    Nodes represent the servers in your infrastructure ,it could be a physical server
+ or virtual server.
+    could also be network hardwares,switches,routes etc...
+
+5)Receipe
+---------
+    receipe is a collection of resources.
+ file,apps
+
+6)cookbooks:
+---------------
+    collection of receipes and templates and custom resources.
+
+7)Runlist:
+------------
+    runlist is a collection of cookbooks ,and every mechaine has its own runlist.
+---------------------------------------------
+techinical adda(organization)
+production(Environment)
+roles
+nodes
+receipes
+cookbooks 
+runlist
+------------------------------------------------------------
+
+Disadvantages of chef
+------------------------
+Hard to learn
+
+Advantage
+------------
+==>More scalability
+==>fully automation
+
+Chef_Architecture:
+-------------------
+3 tier Architecture
+
+WorkStation ----------->Chef-server----------->nodes(Chef client)
+ chef-dk                cloud                   chef-client
+                        data service             webservers
+ org.pem                 office                        cacheservers
+ chef.pem                                       emailservices        
+                                                 Monitoring services.
+laptop                  chef-server-core
+                        chef-manage org.pem
+                                     user.pem
+cookbooks                                       
+--------------------------------------------------------------------------------
+
+=>Cookbooks:
+-----------------
+  cookbook is a collection of receipe.cookbook contain receipe,templates,files,custom resources.
+
+=>create a cookbook
+=>write a receipe file
+=>test a cook file
+=>upload cookbook to server
+=>upload node run_lists
+=>Execute chef-client on the node.
+
+=> What are the commands to create a cookbook?
+  Knife cookbook create <cookbookname>
+  knife generate cookbook <cookbook name>
+    -->It will create full directory structure .it is associated with git.
+    -->it will create cookbook in current directory .so you need to go to cookbook directory.
+steps:
+---------
+1)knife cookbook create file_test   
+  --> vi metdata.rb
+      maintainer_email 'nvsuresh76@gmail.com'
+2)vi techadda/cookbook/file_test/receipe/default.rb
+
+--------------
+resource_type 'name' do
+parameters
+parameters
+action
+end
+--------------
+
+  file '/tmp/dummy.txt' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content 'Hello guys how are you'
+    action :create
+  end
+----------
+3)knife cookbook test file_test
+4)knife cookbook upload file_test
+5)knife cookbook list
+6)knife node run_list add <nodename> file_test
+7)execute "chef-client in chef node"
+=====================================================================================================
+Cookbook for Webserver(Apache):
+------------------------------
+Web
+1)install the package
+2)start the httpd service
+3)enable httpd service
+4)create index.html page
+5)check and configure
+
+cookbook steps:
+-------------
+1)create a cookbook
+2)write a receipe file
+3)test a cookbook
+4)upload cookbook to server
+5)upload node run_list
+6)Execute chef-client on the node
+--------------
+1)chef generate cookbook web_server
+2)vi techadda/cookbook/web_server/receipe/default.rb
+3)knife cookbook upload web_server(or) chef-apply default.rb
+--------------------
+package 'httpd' do
+  action :create
+end
+service 'httpd' do
+  action :start
+end
+service 'httpd' do
+  action :enabled
+end
+#service 'httpd' do
+# action[:start, :enable]
+#end
+
+file '/var/www/html/index.html' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content '<h1>Hello guys how are you</h1>'
+    action :create
+  end
+
+-------------------
+4)knife upload cookbook web_server(or)knife cookbook upload web_server
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[web_server:default]'
+  (or) knife node edit <nodename>("receipe[web_server]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+ systemctl status httpd
+ sudo systemctl firewalld stop
+=====================================================================================================================================
+=>cookbook for cronjob?
+  we can schedule the activities in the machine.
+  eg: Backup, commands, tasks
+
+crontab -e --->edit the cron schedule
+crontab -l --->to see the current schedule
+package : cronie
+service : crond
+file : /var/spool/cron/username
+
+There are the six fields in this file.
+min  hr    dom    month   dow   command
+ 0-59 0-23 1-31   1-12     0-7   command
+
+
+cookbook steps:
+------------------
+1)create a cookbook
+2)write a receipe file
+3)test a cookbook
+4)upload cookbook to server
+5)update node run_list
+6)execute chef-client on the node
+------------------------------------
+1)chef generate cookbook cron_test
+2)vi cheffolder/cookbooks/cron_test/receipe/default.rb
+
+package 'cronie' do
+action :install
+end
+service 'crond' do
+action [:start, :enable]
+end
+
+file '/var/spool/cron/root' do
+owner 'root'
+group 'root'
+mode 0644
+content '*/10 * *  * * /bin/chef-client'
+action :create
+end
+
+3)chef-apply default.rb
+4)knife upload cookbook cron_test(or)knife cookbook upload cron_test
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[web_server:default]'
+  (or) knife node edit <nodename>("receipe[cron_test]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+ sudo systemctl status crond
+ sudo crontab -l
+=================================================== 
+==>Chef Attributes:
+-------------------------
+ => chef attributes are variables,using this attributes we can find below info
+       in short, it will help us to get the information about node and its state.
+     eg: RAN, hostname,ipaddress,package
+      ohai | grep ipaddress
+      ohai | grep hostname
+ cenos ,ubuntu
+
+=> Two types of attributes are their
+1)user defined ----> user will define it
+2)system defined ---> chef will define it.
+
+==> Where you can define the attributes
+1) in the node it self.
+2) in the cookbook(attribute, receipe)
+3) in the role
+4) in the environment
+
+==>what are the different types of attributes?
+1)default--->lowest precedence
+2)force_default
+3)normal
+4)override
+5)force_override
+6)automatic---->highest precedence
+
+eg: package_name ="httpd"
+    service_name = "httpd"
+
+    package package_name do
+     action :install
+    end
+
+attribute in cookbook:
+--------------------------
+we can define attributes in attributes directory , and receipe directory 
+
+old[  default["package_name"] = "cronie"]
+new [  node["package_name"]]
+
+--------------------------------------------------
+cookbook steps:
+------------------
+1)create a cookbook
+2)write a receipe file and atrribute file.
+3)test a cookbook
+4)upload cookbook to server
+5)update node run_list
+6)execute chef-client on the node
+------------------------------------
+1)chef generate cookbook arribute_test 
+ 
+2a)create attributes directory under  arribute_test cookbook
+    and create default.rb in attribute directory
+   vi default.rb
+-------------------
+case node['platform']
+ when "cenos","rhel"
+   default["package_name"] = "httpd"
+   default["service_name"] = "httpd"
+   default["document_root"] = "/var/www/html"
+ when "ubuntu","debian"
+   default["package_name"] = "apache2"
+   default["service_name"] = "apache2"
+   default["document_root"] = "/var/www"
+end
+------------------
+
+  
+2b)vi cheffolder/cookbooks/cron_test/receipe/default.rb
+-------------------------------------
+
+package node["package_name"] do
+  action :create
+end
+service node["service_name"] do
+ action[:start, :enable]
+end
+
+file "#{node["document_root"]}/welcome.html" do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content '<h1>Weicome to my home</h1>'
+    action :create
+  end
+
+-------------------------------------
+
+
+3)chef-apply default.rb
+4)knife upload cookbook attribute_test(or)knife cookbook upload attribute_test
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[attribute_test:default]'
+  (or) knife node edit <nodename>("receipe[attribute_test]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+
+===========================================================================
+==> Templates:
+------------------
+=>What is Template?
+   template is script with .erb extention
+    .erb --->embedded ruby
+   using this script we can create a static files
+
+sourec         destination
+-----------------------------------
+index.html.erb --->index.html
+httpd.conf.erb --->httpd.conf
+
+-----------------------------------
+cookbook steps:
+-------------
+1)create a cookbook
+2)write a receipe file and template file.
+3)test a cookbook
+4)upload cookbook to server
+5)upload node run_list
+6)Execute chef-client on the node
+--------------
+1)chef generate cookbook template_test
+  -mkdir techadda/cookbooks/template_test/templates/default
+
+2a)vi techadda/cookbooks/template_test/templates/default/index.html.erb
+--------------------------
+<html>
+<h1>welcome to suresh my hostname is <%=node['hostname']%></h1>
+<h2> my server platform is <%=node['platform']%></h2>
+<h3> server has total memory <%=node['memory']['total']%></h3>
+
+--------------------------
+2b)vi techadda/cookbook/web_server/receipe/default.rb
+--------------------
+file '/var/www/html/info.html' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    source 'index.html.erb'
+    action :create
+  end
+
+-------------------
+3)knife cookbook upload web_server(or) chef-apply default.rb
+
+4)knife upload cookbook template_test(or)knife cookbook upload template_test
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[tempalte_test:default]'
+  (or) knife node edit <nodename>("receipe[template_test]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+
+=======================================================================
+==> Cookbook for Creating User:
+-----------------------------------
+ =>who is the user?
+    who can utilize the system resources.
+Target: create a user in chef node.
+----------------------------
+information need to create a user:
+
+username: user01
+password: <password>
+groupname: <group name>
+home : /home/ec2-user
+shell : /bin/bah 
+
+=> What is my password stucture?
+
+password layers:
+-------------
+$encrypt_type$salt_name$actual_pass
+ 
+ $encrypt_type =6 types os sha1
+    md5=1
+    crc=2
+    sha256=5
+    sha512=6
+          $salt_name=$kgh556(random unique number system generated)
+    $actual_pass=$8md5nvef985
+
+=>For Example go to node and type below command
+cat /etc/shadow |grep chefadmin
+
+=> how to generated a encrypted password?
+
+- openssl passwd -<type> -salt <salt name> <actual_passwd>
+- openssl passwd -1 -salt cricket redhat
+
+-----------------------------------------
+cookbook steps:
+-------------
+1)create a cookbook
+2)write a receipe file.
+3)test a cookbook
+4)upload cookbook to server
+5)upload node run_list
+6)Execute chef-client on the node
+--------------
+1)chef generate cookbook user_test
+
+
+2)vi techadda/cookbook/user_test/receipe/default.rb
+--------------------
+group 'user01' do
+ action :create'
+end
+user 'user01' do
+    password '$1$cricket$nev555'      ------>(Type -openssl passwd -1 -salt cricket redhat 
+                                                      in node)
+    group 'user01'
+    shell '/bin/bash'
+    home '/home/user01'
+    manage_home true
+    action :create
+  end
+
+-------------------
+3)knife cookbook upload user_test(or) chef-apply default.rb
+
+4)knife upload cookbook user_test(or)knife cookbook upload user_test
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[user_test:default]'
+  (or) knife node edit <nodename>("receipe[user-node]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+
+
+=>Go to user o1=> sudo user01
+=>type password (redhat)
+=>pwd
+=>echo $shell
+=>cat /etc/password | grep user01
+=>cat /etc/shadow | grep user01
+=>cat /etc/group | grep user01
+
+--------------------
+=> ls /var/chef/cache/cookbooks/(It will give all cookbooks)
+=>cd /var/chef/cache/cookbooks/user_test/
+=>ls
+=> vi default.rb (It will show all details )
+=> we can hide the password by using Databags in cookbooks.
+
+======================================================
+==>DataBags:
+---------------
+
+   Databags are used to maintain the system sensitive information like password.
+
+=>What are Databags?
+- databag are global variables
+- it will stores the data in JSON format.
+- it will always stored on the server
+- it stored in index format for faster searching.
+
+=>Why we need databags?
+- To store secret (or) sensitive information like password, private key.
+=> what are the steps to handle databags?
+-> Create an empty databag
+-> Write a json format file and put somedata.
+-> import the data from  the file to databag.
+-> see the list of current databags
+-> modify the receipe to collect data from databag
+  => knife data bag list
+  => knife data bag create (databag name)[knife data bag create user01_pass]
+  => vi user02_password.json
+     {
+       "id" : "user02"
+       "password" : "$1$cricket$254niefb"
+      }
+   => knife data bag from file (data bag name)(file.json)
+
+------------------------------
+=>knife data bag list
+=>knife data bag create user01_pass
+=>vi my_password.json
+   {
+       "id" : "user02"
+       "password" : "$1$cricket$254niefb"
+   } 
+=>knife data bag lists
+=>knife data bag from file user01_pass my_password.json
+=>knife data bag show user01_pass(It will give default file).
+user01
+----------------------------------
+cookbook steps:
+-------------
+1)create a cookbook
+2)write a receipe file.
+3)test a cookbook
+4)upload cookbook to server
+5)upload node run_list
+6)Execute chef-client on the node
+--------------
+1)chef generate cookbook user_test
+
+==> To change version (0.1.0 to 0.2.0)
+- vi user_test/metadata.rb
+  version '0.2.0 '  
+ -----------------------------
+2)vi techadda/cookbook/user_test/receipe/default.rb
+--------------------
+
+userpass=dat_bag_item('user01_pass','user01')
+group 'user01' do
+ action :create'
+end
+user 'user01' do
+    #password '$1$cricket$nev555'      ------>(Type -openssl passwd -1 -salt cricket redhat  in node)
+    password userpass['password']
+    group 'user01'
+    shell '/bin/bash'
+    home '/home/user01'
+    manage_home true
+    action :create
+  end
+
+-------------------
+3)knife cookbook upload user_test(or) chef-apply default.rb
+
+4)knife upload cookbook user_test(or)knife cookbook upload user_test
+  knife cookbook list
+5)knife node run_list add <nodename> 'receipe[user_test:default]'
+  (or) knife node edit <nodename>("receipe[user-node]")
+  knife node list
+  
+6)Execute "chef-client" in chef node
+
+=>cat /etc/group
+=>cat /etc/shadow
+=>cat /etc/
+=>sudo user01
+
+===================================================================
+ 
+Roles in chef:
+----------------
+=>What is a role?
+ 
+ It is a type os server like db, web applications
+ It is a collection of cookbooks and attributes.
+
+=>commands to create a role
+
+-> knife role create webserver
+-> knife role edit webserver
+-> knife node edit <nodename>(instead of cooksbooks 
+          place the role role[role_name])
+-------------------------------------------
+
+=>knife role create webserver
+=>knife role edit webserver
+   -->Under the run_list we have add webserver and template_test
+
+   "run_list":[
+     "receipe[webserver]",
+     "receipe[template_test]"
+      ]
+
+=>  vi template_test/templates/defauls/info.html.erb
+   Good Bye
+=> knife role show webserver
+=> knife node show <nodename>
+=>knife node edit <nodename>
+  (we have to remove webserver and template_test recipes 
+    and add "role[webserver]").
+=>knife cookbook upload template_test
+=>Execute chef-client in node
+=================================================
+
+Task
+
+install apache,php, mysql in cookbooks.
+
+=============================================
+            

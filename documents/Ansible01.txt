@@ -1,0 +1,189 @@
+Ansible:
+==============
+1)What is the Ansible?
+  Ansibel is a configuration management tool
+=>what is configure management tool?
+   it is maintain number(100 and 1000s) of mechines with automation.
+=>what configuration management maintain?
+ it maintain the system resources such as
+ 1)install a application
+ 2)configura a application
+ 3)update the applicaation
+ 4)maintain the appication  and so on--
+=>why configuration management tool?
+ -->reduce management complexity
+ --->save time.
+=> Infrastructure as a code
+   --with the code you can manage the infrastructure.
+=>configuration management tools?
+  puppet ----------->2005 --->pull
+  chef ------------->2008----->pull
+  Ansible------------->2011---->push
+
+=>how ansible work?
+  ansible is working based on push mechanisum.
+  push based means here server(master) will push the code into the nodes.
+=>how master communicate with slaves?
+ with ssh public key & private key they communicate.
+
+--------------------------------------------
+=>how to install ansible?
+2 ways to insatll
+1)pipe install ansible (it is python module)
+2)yum -y install ansibel (before that you can install epel-release
+           "yum -y install epel-release and enable it").
+
+==>create the master user private & public key.
+==>then place the master public key in "authorized_keys" file
+==>cat id_rsa_pub >> authorized_keys
+==>then copy key to nodes
+==>ssh-copy-id root@(node ip)
+==>set nodes in master (/etc/ansible/hosts) file
+--------------------------
+=>we can work with ansible in 2 ways 
+  --->playbooks (all tasks place in one .yml file and runit)
+  --->ad-hoc (on the command line we perform this).
+Perform some commands.
+1)ansible -m ping (node).
+2)ansible -m shell -a "yum -y install httpd" (node)
+3)ansible -m shell -a "system start httpd"(node)
+4)ansible -m service -a "name=httpd state=started"
+  -----------------------------------------------------------------
+Ansible Playbooks:
+-----------------
+=>What is Playbook?
+  playbook is a set of instructions file.To do  a particular tasks
+   on  target(host) or group of target(hosts).
+=>how playbook works?
+  playbook works with modules (yum,service,file,etc..),and 
+   inventory file over ssh communication.
+=>what we need to run playbook?
+  We need to specify target, tasks in playbook with modules(yum, file, etc ..) 
+-------------
+=> how playbook start?
+-----------------------------
+vi sample_playbook.yml
+---
+- name: sample playbook
+  hosts: target host (or) hosts name spacified in (/etc/ansible/hosts).
+  tasks: 
+  - name: sample file
+    file:
+     path: /tmp/sample.txt
+     owner: root
+     group: root
+     mode: 0644
+     state: touch
+  - name: install apache
+    yum:
+      name: httpd
+      state: latest
+  - name: start apache service
+    service:
+       name: httpd
+       state: started
+  - name: copy sample template file.
+    template:
+        src: index.html
+        dest: /var/www/html/
+
+-----------------------------
+=>ansible-playbook sample_playbook.yaml
+-----------------------------------
+->create sample file -file
+->install application
+->start service (httpd) -service
+->copy file (index.html) -template
+----------------------------------------------
+=>Ansible roles:
+------------------
+  Place the group of playbooks in one file. it will help reduce the code complexity,and increase
+     the code reusability.
+#ansible-galaxy init lmp
+# tree lamp
+==defaults(main.yml)
+==files
+==handlers(main.yml)
+==meta(main.yml)
+==README.md
+==tasks(main.yml)
+==templates
+==tests(inventory,test.yml)
+==vars(main.yml)
+-----------------------------------
+=> vi /lamp/tasks
+   vi httpd.yml
+- name: install apache
+    yum:
+      name: httpd
+      state: latest
+- name: start apache service
+    service:
+       name: httpd
+       state: started
+  - name: copy sample template file.
+    copy:
+        src: index.html
+        dest: /var/www/html/
+---------------------------
+vi php.yml
+--------------
+- name: install php
+    yum:
+      name: php
+      state: latest
+  - name: copy phpinfo file.
+    copy:
+        src: phpinfo.php
+        dest: /var/www/html/
+    notify: restart apache server
+
+--------------
+vi main.yaml
+----------------------
+---
+# tasks file for lamp
+- include_tasks: httpd.yml
+- include_tasks: php.yaml
+ 
+----------------------
+tree .
+-----------------------------------------------------------
+=>cd files
+== vi index.html
+welcome to hello world
+-------------------------------
+=>vi phpinfo.php
+<?
+phpinfo();
+?>
+-----------------------------------
+cd handlers
+ vi main.yml
+---------------
+- name: restart apache server
+  service:
+     name: httpd
+     state: restarted
+---------------
+tree .
+---------------------
+ansible -m ping lampserver
+vi /etc/ansible/hosts
+[lampserver]
+191.25.56.23
+----------------------
+
+Under the root
+vi mylamp.yml
+----------------------------
+---
+- hosts: lampserver
+  become: true
+  roles:
+  - lamp
+------------------------------
+ansible-playbook mylamp.yml --syntax-check
+ansible-playbook mylamp.yml
+=======================================================
+

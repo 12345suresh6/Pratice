@@ -1,0 +1,90 @@
+TOMCAT:
+----------
+
+==>what is tomcat?
+  Tomcat is application server. It is a java based application.
+It provides a platform to the java application .
+
+==>Different between web and application server?
+
+   webserver
+  apache                          Application server Tomcat
+-------------------------------------------------------------------
+   80                                      8080
+  httpd                                  tomcat
+  /etc/httpd/conf/httpd.conf             /opt/apache-tomcat-3.0.0/conf
+  /var/www/html                          /opt/apache-tomcat-xx/webapps
+  .html/.php                             .java
+--------------------------------------------------------------------------------------------
+Installation of tomcat:
+--------------------------
+1) rpm/yum
+2) source code
+3) custmized method
+
+we will install the tomcat 7.
+
+steps to install the tomcat:
+-------------------------------
+  1)Download the tomcat 7 tar filr
+  2)extract the tar fille
+  3)set up the environment
+  4)start the tomcat
+
+=======================================================
+=> wget tar.gz of tamcat
+=> ls
+=> tar xvfz apache-tomcat-7.0.88.tar.gz -C /opt/
+=>ll /opt/
+=>sudo chown -R ec2-user:ec2-user /opt/apache-tomcat-7.0.88
+=> ll /opt
+=>cd /opt/apache-tomcat-7.0.88/
+=>cd /bin
+=>./startup.sh
+=>cd /opt/apache-tomcat-xx/conf
+   vi tomcat-users.xml
+------------------------------
+<role rolename="manager-gui"/>
+<user username="tomcat" password="tomcat" roles="manager-gui">
+------------------------------
+=>./shutdown.sh
+
+==============================================================================
+
+==>Install a one web application top of the tomcat?
+
+1)download gitbacket .war
+2)deploy 
+   =>gui 
+     a)server method(vm)
+     b)client side(host)
+   => direct method
+   => via automation
+
+===>cd /opt/
+==> wget gitbucket.war
+---------------
+context path (required): /gitbucket
+WAR or Directory Url: /tmp/gitbucket.war
+-------------------------------
+=> cd /opt/apache-tomcat-7.0.88/ 
+=>cd webapps/
+=======================================================================================
+
+MAVEN in Tomcat
+---------------
+
+1) mvn archetype:generate
+
+  project number:1203
+  group id      : unique project name (techincal adda)
+  artifact id   : output file name (simplejar.jar)
+  package id	: same as group id
+  version	: 1.0-SNAPSHOT
+
+2) mvn validate
+3)mvn compile
+   vi src/main/webapp/index.jsp
+4)mvn package
+5)cp target/sampleweb.war /opt/apache-tomcat-7.0..88/webappps
+
